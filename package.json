@@ -1,0 +1,11 @@
+{
+  "name": "rmcommute-backend",
+  "version": "1.0.0",
+  "main": "app.js",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.1",
+    "serverless-http": "^2.7.0"
+  }
+}
