@@ -10,29 +10,31 @@ app.use(express.json());
 const API_KEY = process.env.API_KEY;
 
 function queryParamsValid(query) {
-  const { latitude, longitude, destination, mode } = query;
+  const { latitude, longitude, destination, mode, arrival_time } = query;
 
   return (
     parseFloat(latitude) &&
     parseFloat(longitude) &&
+    parseInt(arrival_time, 10) &&
     destination.length &&
     mode.length
   );
 }
 
+const gmapsUrl = "https://maps.googleapis.com/maps/api/distancematrix/json";
+
 app.get("/travelmatrix/", async (req, res) => {
   if (queryParamsValid(req.query)) {
-    const { latitude, longitude, destination, mode } = req.query;
+    const { latitude, longitude, destination, mode, arrival_time } = req.query;
 
-    const url = [
-      "https://maps.googleapis.com/maps/api/distancematrix/json?",
-      `origins=${latitude},${longitude}&`,
-      `destinations=${destination}&`,
-      `mode=${mode}&`,
-      `key=${API_KEY}`,
-    ].join("");
+    const apiUrl = new URL(gmapsUrl);
+    apiUrl.searchParams.append("origins", `${latitude},${longitude}`);
+    apiUrl.searchParams.append("destinations", destination);
+    apiUrl.searchParams.append("mode", mode);
+    apiUrl.searchParams.append("arrival_time", arrival_time);
+    apiUrl.searchParams.append("key", API_KEY);
 
-    const response = await fetch(encodeURI(url));
+    const response = await fetch(apiUrl.href);
     if (response.ok) {
       const json = await response.json();
       const result = json.rows[0].elements[0];
